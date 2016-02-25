@@ -1,0 +1,113 @@
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Optimal Engine Selector</title>
+    <link rel="stylesheet" href="test.css">
+    <script src="javascripts\bodiesdata.js"> </script>
+    <script src="javascripts\enginesdata.js"> </script>
+</head>
+
+<body>
+    <header class="page-header">
+        <h1> Optimal Engine Selector <small class="small-header">for Kerbal Space Program 1.0.5</small> </h1>
+    </header>
+
+    <form action="Optimizer" method="post">
+        <section class="form">
+            <div class="input-data">
+                <h4>Input data</h4>
+                <div class="form-group">
+                    <label class="label" for="targetSelect">Target planet:</label>
+                    <div class="input-group">
+                        <select id="targetSelect" value="Kerbin" class="selector">
+                            <option>Moho</option>
+                            <optgroup label="Eve System">
+                                <option>Eve</option>
+                                <option>Gilly</option>
+                            </optgroup>
+                            <optgroup label="Kerbin System">
+                                <option>Kerbin</option>
+                                <option>Mun</option>
+                                <option>Minmus</option>
+                            </optgroup>
+                            <optgroup label="Dune System">
+                                <option>Duna</option>
+                                <option>Ike</option>
+                            </optgroup>
+                            <option>Dres</option>
+                            <optgroup label="Jool System">
+                                <option>Jool</option>
+                                <option>Laythe</option>
+                                <option>Vall</option>
+                                <option>Tylo</option>
+                                <option>Bop</option>
+                                <option>Pol</option>
+                            </optgroup>
+                            <option>Eeloo</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="label" for="payloadInput">Payload mass:</label>
+                    <div class="input-group">
+                        <input class="textInput" placeholder="4444" id="payloadInput" value="1" size=12 type="text" name="payload">
+                        <label class="textInputUnit" for="payloadInput">t</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="label" for="dvInput">Desired dV:</label>
+                    <div class="input-group">
+                        <input class="textInput" id="dvInput" value="1500" size=12 type="text" name="dV">
+                        <label class="textInputUnit" for="dvInput">m/s</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="label" for="minTWRInput">Minimal TWR:</label>
+                    <div class="input-group">
+                        <input class="textInput" id="minTWRInput" value="1.0" size=12 type="text" name="TWR">
+                        <label class="textInputUnit" for="minTWRInput">n/a</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="label" for="tankKindSelect">Kind of tanks:</label>
+                    <div class="input-group">
+                        <select id="tankKindSelect" class="selector">
+                            <option>Regular tanks</option>
+                            <option>Spaceplane's tanks</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="button-group">
+                    <button class="find-button" name="findButton" type="button" onclick="Calc()">Find optimal</button>
+                </div>
+            </div>
+            <div class="results">
+                <h4>Calculated optimal engine</h4>
+                <table name="calcTable" id="optimalTable">
+                <tr class="res-row">
+                    <td class="res-col1">Engine name:</td><td class="res-col2">-</td><td class="res-col2"></td>
+                </tr>
+                <tr class="res-row">
+                    <td class="res-col1">Number of engines:</td><td class="res-col2" colspan="2">-</td>
+                </tr>
+                <tr class="res-row">
+                    <td class="res-col1">Calculated TWR:</td><td class="res-col2" colspan="2">-</td>
+                </tr>
+                <tr class="res-row">
+                    <td class="res-col1">Total mass:</td><td class="res-col2" colspan="2">-</td>
+                </tr>
+                </table>
+            </div>
+        </section>
+    </form>
+    <section class="results-table" id="resultTable">
+        <h4>List of all acceptable engines</h4>
+        <table class="fullTable" id="EnginesTable">
+        <tr class="res-header">
+            </td><th class="res-hd4" colspan="2">Engine name</td><td class="res-hd5">Total mass</td><td class="res-hd5">Number of engines</td>
+            <td class="res-hd5">TWR</td><td class="res-hd5">Theoretical maximum dV</td>
+        </tr>
+        </table>
+    </section>
+</body>
+</html>
