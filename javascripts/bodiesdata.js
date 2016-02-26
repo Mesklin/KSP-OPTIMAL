@@ -1,5 +1,4 @@
 // Data for version 1.0.5
-var InitData = 0;
 var Bodies = {  Moho:   {g: 2.697,  atmH: 0.0,   atmPressure: 0.0,  atmoScaleH: 0.0,  atmoCurve: null }, 
                 Eve:    {g: 16.672, atmH: 90.0,  atmPressure: 5.0,  atmoScaleH: 7.3,  atmoCurve: null },
                 Gilly:  {g: 0.049,  atmH: 0.0,   atmPressure: 0.0,  atmoScaleH: 0.0,  atmoCurve: null },
@@ -26,7 +25,7 @@ var atmoEve = [ { h: 0.0, p: 5.000},  { h: 2.5, p: 3.249},  { h: 5.0, p: 2.149},
                 { h: 35.0, p: 0.036}, { h: 40.0, p: 0.015}, { h: 50.0, p: 0.005}, { h: 60.0, p: 0.002}, { h: 70.0, p: 0.000},
                 { h: 80.0, p: 0.000}, { h: 90.0, p: 0.000} ];
                 
-var atmoDune = [ { h: 0.0, p: 0.067},  { h: 2.5, p: 0.051},  { h: 5.0, p: 0.037},  { h: 7.5, p: 0.026},  { h: 10.0, p: 0.018}, { h: 15.0, p: 0.007}, 
+var atmoDuna = [ { h: 0.0, p: 0.067},  { h: 2.5, p: 0.051},  { h: 5.0, p: 0.037},  { h: 7.5, p: 0.026},  { h: 10.0, p: 0.018}, { h: 15.0, p: 0.007}, 
                  { h: 20.0, p: 0.002}, { h: 25.0, p: 0.001}, { h: 30.0, p: 0.000}, { h: 40.0, p: 0.000}, { h: 50.0, p: 0.000} ];
                                  
 var atmoJool = [ { h: 0.0, p: 15.000},  { h: 10.0, p: 10.468}, { h: 20.0, p: 7.734},  { h: 30.0, p: 6.056},  { h: 40.0, p: 4.763},  { h: 50.0, p: 3.683},
@@ -38,46 +37,39 @@ var atmoLaythe = [ { h: 0.0, p: 0.600},  { h: 2.5, p: 0.465},  { h: 5.0, p: 0.34
                    { h: 20.0, p: 0.047}, { h: 25.0, p: 0.026}, { h: 30.0, p: 0.015}, { h: 40.0, p: 0.004}, { h: 50.0, p: 0.000} ];              
 
 function InitBodiesData() {
-    if (InitData == 0) {
-        InitData = 1;
-        Bodies.Eve.atmoCurve = atmoEve;
-        Bodies.Kerbin.atmoCurve = atmoKerbin;
-        Bodies.Dune.atmoCurve = atmoDune;
-        Bodies.Jool.atmoCurve = atmoJool;
-        Bodies.Laythe.atmoCurve = atmoLaythe;
-    }
+    Bodies.Eve.atmoCurve = atmoEve;
+    Bodies.Kerbin.atmoCurve = atmoKerbin;
+    Bodies.Duna.atmoCurve = atmoDuna;
+    Bodies.Jool.atmoCurve = atmoJool;
+    Bodies.Laythe.atmoCurve = atmoLaythe;
 }
 
 function atmoPressure( Body, Altitude ) {
+    //alert( "Altitude=" + Altitude + "  g=" + Body.g + "  atmH=" + Body.atmH );
     if (Altitude >= Body.atmH) { 
-        return 0; 
+        return 0.0; 
     }
-    else {
-        var Curve;
-        if (Body.atmoCurve != null) 
-            { Curve = Body.AtmoCurve; }
-        else 
-            { return 0.0; }
-            
-        var n = Curve.length-1;
+    if (Body.atmoCurve == null) { 
+        return 0.0; 
+    }
         
-        if (n < 0) { return 0.0; };
-        if (Altitude <= Curve[0].h) {
-            return Curve[0].p;
-        } 
-        else if (Altitude >= Curve[n].h) {
-            return Curve[n].p;
-        }
-        else {
-            for (var i=1; i<=n; i++) {
-                // alert("for " + i + " h= " + Curve[i].h + "  p=" + Curve[i].p + "   Altitude=" + Altitude);
-                if (Altitude <= Curve[i].h) {
-                    var t = Curve[i-1].p + (Curve[i].p-Curve[i-1].p)*(Altitude-Curve[i-1].h)/(Curve[i].h-Curve[i-1].h);
-                    // alert( t );
-                    return t; 
-                }
-            }        
+    var n = Body.atmoCurve.length-1;
+    if (n < 0) { 
+        return 0.0; 
+    }
+    if (Altitude >= Body.atmoCurve[n].h) {
+        return 0.0;
+    }
+    if (Altitude <= Body.atmoCurve[0].h) { 
+        return Body.atmoCurve[0].p;
+    } 
+    for (var i=1; i<=n; i++) {
+        if (Altitude <= Body.atmoCurve[i].h) {
+            var t = Body.atmoCurve[i-1].p + (Body.atmoCurve[i].p-Body.atmoCurve[i-1].p)*(Altitude-Body.atmoCurve[i-1].h)/(Body.atmoCurve[i].h-Body.atmoCurve[i-1].h);
+            return t; 
         }
     }
+    alert( "Error" );
+    return 0.0;
 }
 

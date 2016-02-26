@@ -1,4 +1,4 @@
-var g_base = 9.81;
+var g_base = 9.807;
 
 var Engines =  [ 
     { picture: "LV-1R",    name: 'LV-1R "Spider"',           mass: 0.02, thrust: 2.0,    IspCurve: [ {p: 0.0, Isp: 290.0 }, {p: 1.0, Isp: 260.0 }, {p: 8.0, Isp: 0.001 } ] },
@@ -27,22 +27,23 @@ function Calc() { // main function - connected to "Find Optimal" button
     var selBody = document.forms[0].targetSelect.value;
     g_body = Bodies[selBody].g;
     //alert( g_body );
+    var h = document.forms[0].altitudeInput.value*1.0;
+    AtmoPressure = atmoPressure( Bodies[selBody], h );
+    //alert( "AtrmoPressure=" + AtmoPressure );
+    RecalcIsp( Engines, AtmoPressure );
+
     payloadMass = document.forms[0].payloadInput.value*1.0;
     // alert("payload= " + payloadMass);
     dV = document.forms[0].dvInput.value*1.0;
     // alert("desired dV= " + dV);
     minTWR = document.forms[0].minTWRInput.value*1.0;
     // alert("min TWR= " + minTWR);
-    AtmoPressure = 0.0;
     Z_inp = (document.forms[0].tankKindSelect.value == "Regular tanks") ? 9 : 8;
     //alert(document.forms[0].tankKindSelect.value + " -- " + Z_inp);
     
-    InitBodiesData();
-    RecalcIsp( Engines, AtmoPressure );
-    
     var C, C1, N, maxDV;
     for (var i=0; i < Engines.length; i++) {
-        Z = (Engines[i].name == 'LV-N "Nerv"') ? 8 : Z_inp; // for LV-N engine I am using spaceplane's fuel only tanks with Z=8
+        Z = (Engines[i].name == 'LV-N "Nerv"') ? 8 : Z_inp; // for LV-N engine I am using always spaceplane's fuel only tanks with Z=8
         C = Math.exp(dV/Engines[i].Isp/g_base);
         C1 = (Z - 1.0)/(Z/C - 1.0);
         N = payloadMass/(Engines[i].thrust/minTWR/g_body/C1 - Engines[i].mass);
@@ -52,77 +53,76 @@ function Calc() { // main function - connected to "Find Optimal" button
         Engines[i].maxDV = Math.floor(maxDV)*1.0;
         Engines[i].totalMass = (Engines[i].Num*Engines[i].mass + payloadMass)*C1;
         Engines[i].TWR = Engines[i].Num*Engines[i].thrust/Engines[i].totalMass/g_body;
-        
         // alert(Engines[i].name + ": " + Engines[i].mass + " : Num=" + Engines[i].Num + "  totalMass=" + Engines[i].totalMass + "  TWR=" + Engines[i].TWR);
     }
     
     Engines.sort( function(a,b){return (a.totalMass > b.totalMass) ? 1 : (a.totalMass < b.totalMass) ? -1 : 0;} )
     
-    for (i=0; i < Engines.length; i++) {
-//        alert(Engines[i].name + " : Num=" + Engines[i].Num + "  TWR=" + Engines[i].TWR + "  Mass=" + Engines[i].totalMass + " : MaxDV=" + Engines[i].maxDV);
-    }
-    
     var tbl = document.getElementById("optimalTable");
     var tblFull = document.getElementById("EnginesTable");
+    
+    // delete old results
     for (i=1; i < tblFull.rows.length;) {
         tblFull.deleteRow(1);
     }
+
+    //show table with all acceptable results
     var j = -1;
     for (i=0; i < Engines.length; i++) {
         if (Engines[i].totalMass > 0) { 
             if (j < 0) { j = i; }
-//            var row = tblFull.insertRow(tblFull.rows.length);
-//            row.insertCell(0).innerHTML = Engines[i].name;
-//            row.insertCell(1).innerHTML = number_format(Engines[i].totalMass, 3, '.', ' ' ) + " t";
-//            row.insertCell(2).innerHTML = Engines[i].Num;
-//            row.insertCell(3).innerHTML = number_format(Engines[i].TWR, 2, '.', ' ' );
-//            row.insertCell(4).innerHTML = number_format(Engines[i].maxDV, 0, '.', ' ' ) + " m/s";
             AddLineTable( tblFull, Engines[i] );
-
         }
     }
+
     //alert(Engines[i].name + " : Num=" +  tbl.rows[1].cells[1].innerHTML + "  TWR=" + Engines[i].TWR + "  Mass=" + Engines[i].totalMass + " : MaxDV=" + Engines[i].maxDV);
-    tbl.rows[0].cells[1].innerHTML=Engines[j].name;
-    tbl.rows[0].cells[2].innerHTML="<img src=images/" + Engines[j].picture + ".png height=30>";
-    tbl.rows[1].cells[1].innerHTML=Engines[j].Num;
-    tbl.rows[2].cells[1].innerHTML=number_format(Engines[j].TWR, 2, '.', ' ' );
-    tbl.rows[3].cells[1].innerHTML=number_format(Engines[j].totalMass, 3, '.', ' ' ) + " t";    
-    
-    //show table with all acceptable results
-    
+    // show optimal engine
+    ShowCalculatedEngine( tbl, (j <0) ? null : Engines[j]  ); 
 }
 
-function AddLineTable( tbl, Engine ) {
-    var s;
-    s = "<td class=res-col4>" + "<div align=center><img src=images/" + Engine.picture + ".png height=30></div>" + "</td>";
+function AddLineTable( tbl, Engine ) { // add one line in table of engines performance 
+    var s = "<td class=res-col4>" + "<div align=center><img src=images/" + Engine.picture + ".png height=30></div>" + "</td>";
     s = s + "<td class=res-col4>" + Engine.name + "</td>";
     s = s + "<td class=res-col5>" + number_format(Engine.totalMass, 3, '.', ' ' ) + " t" + "</td>";
     s = s + "<td class=res-col5>" + Engine.Num + "</td>";
     s = s + "<td class=res-col5>" + number_format(Engine.TWR, 2, '.', ' ' ) + "</td>";
+    s = s + "<td class=res-col5>" + number_format(Engine.Isp, 0, '.', ' ' ) + "</td>";
     s = s + "<td class=res-col5>" + number_format(Engine.maxDV, 0, '.', ' ' ) + " m/s" + "</td>";
     tbl.insertRow(tbl.rows.length).innerHTML = s;
+}
+
+function ShowCalculatedEngine( tbl, Engine = null) { // fill result table with information about optimal engine 
+    if (Engine == null) {
+        tbl.rows[0].cells[1].innerHTML="None";
+        tbl.rows[0].cells[2].innerHTML="";
+        tbl.rows[1].cells[1].innerHTML="-";
+        tbl.rows[2].cells[1].innerHTML="-";
+        tbl.rows[3].cells[1].innerHTML="-";    
+    }
+    else {
+        tbl.rows[0].cells[1].innerHTML=Engine.name;
+        tbl.rows[0].cells[2].innerHTML="<img src=images/" + Engine.picture + ".png height=30>";
+        tbl.rows[1].cells[1].innerHTML=Engine.Num;
+        tbl.rows[2].cells[1].innerHTML=number_format(Engine.TWR, 2, '.', ' ' );
+        tbl.rows[3].cells[1].innerHTML=number_format(Engine.totalMass, 3, '.', ' ' ) + " t";    
+    }
 }
 
 function LinearApprox( Curve, AtmoPressure ) { // linear approximation for AtmoPressure for Curve array (firts element in array is pressure, second - Isp)
     var n = Curve.length-1;
     
     if (n < 0) { return 0.001; };
-    if (AtmoPressure <= Curve[0].p) {
-        return Curve[0].Isp;
-    } 
-    else if (AtmoPressure >= Curve[n].p) {
-        return Curve[n].Isp;
+    if (AtmoPressure <= Curve[0].p) { return Curve[0].Isp; }
+    if (AtmoPressure >= Curve[n].p) { return Curve[n].Isp; }
+    for (var i=1; i<=n; i++) {
+        // alert("for " + i + " isp= " + Curve[i].Isp + "  p=" + Curve[i].p + "   press=" + AtmoPressure);
+        if (AtmoPressure <= Curve[i].p) {
+            var t = Curve[i-1].Isp + (Curve[i].Isp-Curve[i-1].Isp)*(AtmoPressure-Curve[i-1].p)/(Curve[i].p-Curve[i-1].p);
+            // alert( t );
+            return t; 
+        }
     }
-    else {
-        for (var i=1; i<=n; i++) {
-            // alert("for " + i + " isp= " + Curve[i].Isp + "  p=" + Curve[i].p + "   press=" + AtmoPressure);
-            if (AtmoPressure <= Curve[i].p) {
-                var t = Curve[i-1].Isp + (Curve[i].Isp-Curve[i-1].Isp)*(AtmoPressure-Curve[i-1].p)/(Curve[i].p-Curve[i-1].p);
-                // alert( t );
-                return t; 
-            }
-        }        
-    }
+    return 0.001;
 }
                  	
 function RecalcIsp( Engines, AtmoPressure ) { // recalc current Isp for engines based on AtmoPressure
@@ -158,3 +158,4 @@ function number_format(number, decimals, dec_point, thousands_sep) {
   }
   return s.join(dec);
 }
+

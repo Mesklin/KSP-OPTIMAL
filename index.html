@@ -2,9 +2,13 @@
 <head>
     <meta charset="utf-8">
     <title>Optimal Engine Selector</title>
-    <link rel="stylesheet" href="test.css">
+    <link rel="stylesheet" href="main.css">
     <script src="javascripts\bodiesdata.js"> </script>
     <script src="javascripts\enginesdata.js"> </script>
+    <script>
+        //alert( "Init" );
+        InitBodiesData(); 
+    </script>    
 </head>
 
 <body>
@@ -47,29 +51,37 @@
                         </select>
                     </div>
                 </div>
+                <div class="form-group1">
+                    <label class="label"><input class="radio" id="useAtmoInput" type="checkbox">Use atmo ></label>
+                    <label class="label" for="altitudeInput">Altitude:</label>
+                    <div class="input-group">
+                        <input class="textInput" id="altitudeInput" value="0" size=10 type="text" name="payload">
+                        <label class="textInputUnit" for="altitudeInput">km</label>
+                    </div>
+                </div>
                 <div class="form-group">
                     <label class="label" for="payloadInput">Payload mass:</label>
                     <div class="input-group">
-                        <input class="textInput" placeholder="4444" id="payloadInput" value="1" size=12 type="text" name="payload">
+                        <input class="textInput" id="payloadInput" value="1" size=10 type="text" name="payload">
                         <label class="textInputUnit" for="payloadInput">t</label>
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="label" for="dvInput">Desired dV:</label>
                     <div class="input-group">
-                        <input class="textInput" id="dvInput" value="1500" size=12 type="text" name="dV">
+                        <input class="textInput" id="dvInput" value="1500" size=10 type="text" name="dV">
                         <label class="textInputUnit" for="dvInput">m/s</label>
                     </div>
                 </div>
                 <div class="form-group">
                     <label class="label" for="minTWRInput">Minimal TWR:</label>
                     <div class="input-group">
-                        <input class="textInput" id="minTWRInput" value="1.0" size=12 type="text" name="TWR">
+                        <input class="textInput" id="minTWRInput" value="1.0" size=10 type="text" name="TWR">
                         <label class="textInputUnit" for="minTWRInput">n/a</label>
                     </div>
                 </div>
                 <div class="form-group">
-                    <label class="label" for="tankKindSelect">Kind of tanks:</label>
+                    <label class="label" for="tankKindSelect">Type of tanks:</label>
                     <div class="input-group">
                         <select id="tankKindSelect" class="selector">
                             <option>Regular tanks</option>
@@ -105,7 +117,7 @@
         <table class="fullTable" id="EnginesTable">
         <tr class="res-header">
             </td><th class="res-hd4" colspan="2">Engine name</td><td class="res-hd5">Total mass</td><td class="res-hd5">Number of engines</td>
-            <td class="res-hd5">TWR</td><td class="res-hd5">Theoretical maximum dV</td>
+            <td class="res-hd5">TWR</td><td class="res-hd5">Isp</td><td class="res-hd5">Theoretical maximum dV</td>
         </tr>
         </table>
     </section>
