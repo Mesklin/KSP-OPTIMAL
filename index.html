@@ -1,158 +1,126 @@
 <!DOCTYPE html>
-<html lang="en-us">
-  <head>
-    <meta charset="UTF-8">
-    <title>Ksp-optimal by Mesklin</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
-    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
-    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
-  </head>
-  <body>
-    <section class="page-header">
-      <h1 class="project-name">Ksp-optimal</h1>
-      <h2 class="project-tagline">Selection optimal engine in Kerbal Space Program game</h2>
-      <a href="https://github.com/Mesklin/KSP-OPTIMAL" class="btn">View on GitHub</a>
-      <a href="https://github.com/Mesklin/KSP-OPTIMAL/zipball/master" class="btn">Download .zip</a>
-      <a href="https://github.com/Mesklin/KSP-OPTIMAL/tarball/master" class="btn">Download .tar.gz</a>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Optimal Engine Selector</title>
+    <link rel="stylesheet" href="main.css">
+    <script src="javascripts\bodiesdata.js"> </script>
+    <script src="javascripts\enginesdata.js"> </script>
+    <script>
+        //alert( "Init" );
+        InitBodiesData(); 
+    </script>    
+</head>
+
+<body>
+    <header class="page-header">
+        <h1> Optimal Engine Selector <small class="small-header">for Kerbal Space Program 1.0.5</small> </h1>
+    </header>
+
+    <form action="Optimizer" method="post">
+        <section class="form">
+            <div class="input-data">
+                <h4>Input data</h4>
+                <div class="form-group">
+                    <label class="label" for="targetSelect">Target planet:</label>
+                    <div class="input-group">
+                        <select id="targetSelect" value="Kerbin" class="selector">
+                            <option>Moho</option>
+                            <optgroup label="Eve System">
+                                <option>Eve</option>
+                                <option>Gilly</option>
+                            </optgroup>
+                            <optgroup label="Kerbin System">
+                                <option>Kerbin</option>
+                                <option>Mun</option>
+                                <option>Minmus</option>
+                            </optgroup>
+                            <optgroup label="Dune System">
+                                <option>Duna</option>
+                                <option>Ike</option>
+                            </optgroup>
+                            <option>Dres</option>
+                            <optgroup label="Jool System">
+                                <option>Jool</option>
+                                <option>Laythe</option>
+                                <option>Vall</option>
+                                <option>Tylo</option>
+                                <option>Bop</option>
+                                <option>Pol</option>
+                            </optgroup>
+                            <option>Eeloo</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group1">
+                    <label class="label"><input class="radio" id="useAtmoInput" type="checkbox">Use atmo ></label>
+                    <label class="label" for="altitudeInput">Altitude:</label>
+                    <div class="input-group">
+                        <input class="textInput" id="altitudeInput" value="0" size=10 type="text" name="payload">
+                        <label class="textInputUnit" for="altitudeInput">km</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="label" for="payloadInput">Payload mass:</label>
+                    <div class="input-group">
+                        <input class="textInput" id="payloadInput" value="1" size=10 type="text" name="payload">
+                        <label class="textInputUnit" for="payloadInput">t</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="label" for="dvInput">Desired dV:</label>
+                    <div class="input-group">
+                        <input class="textInput" id="dvInput" value="1500" size=10 type="text" name="dV">
+                        <label class="textInputUnit" for="dvInput">m/s</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="label" for="minTWRInput">Minimal TWR:</label>
+                    <div class="input-group">
+                        <input class="textInput" id="minTWRInput" value="1.0" size=10 type="text" name="TWR">
+                        <label class="textInputUnit" for="minTWRInput">n/a</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="label" for="tankKindSelect">Type of tanks:</label>
+                    <div class="input-group">
+                        <select id="tankKindSelect" class="selector">
+                            <option>Regular tanks</option>
+                            <option>Spaceplane's tanks</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="button-group">
+                    <button class="find-button" name="findButton" type="button" onclick="Calc()">Find optimal</button>
+                </div>
+            </div>
+            <div class="results">
+                <h4>Calculated optimal engine</h4>
+                <table name="calcTable" id="optimalTable">
+                <tr class="res-row">
+                    <td class="res-col1">Engine name:</td><td class="res-col2">-</td><td class="res-col2"></td>
+                </tr>
+                <tr class="res-row">
+                    <td class="res-col1">Number of engines:</td><td class="res-col2" colspan="2">-</td>
+                </tr>
+                <tr class="res-row">
+                    <td class="res-col1">Calculated TWR:</td><td class="res-col2" colspan="2">-</td>
+                </tr>
+                <tr class="res-row">
+                    <td class="res-col1">Total mass:</td><td class="res-col2" colspan="2">-</td>
+                </tr>
+                </table>
+            </div>
+        </section>
+    </form>
+    <section class="results-table" id="resultTable">
+        <h4>List of all acceptable engines</h4>
+        <table class="fullTable" id="EnginesTable">
+        <tr class="res-header">
+            </td><th class="res-hd4" colspan="2">Engine name</td><td class="res-hd5">Total mass</td><td class="res-hd5">Number of engines</td>
+            <td class="res-hd5">TWR</td><td class="res-hd5">Isp</td><td class="res-hd5">Theoretical maximum dV</td>
+        </tr>
+        </table>
     </section>
-
-    <section class="main-content">
-      <p>
-</p>
-    
-    Optimal Engine Selector
-    
-    
-    
-    <br>
-
-
-<p></p>
-     
-        <h1>
-<a id="-optimal-engine-selector-for-kerbal-space-program-105-" class="anchor" href="#-optimal-engine-selector-for-kerbal-space-program-105-" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a> Optimal Engine Selector for Kerbal Space Program 1.0.5 </h1>
-     
-
-<pre><code>&lt;form action="Optimizer" method="post"&gt;
-    &lt;section class="form"&gt;
-        &lt;div class="input-data"&gt;
-            &lt;h4&gt;Input data&lt;/h4&gt;
-            &lt;div class="form-group"&gt;
-                &lt;label class="label" for="targetSelect"&gt;Target planet:&lt;/label&gt;
-                &lt;div class="input-group"&gt;
-                    &lt;select id="targetSelect" value="Kerbin" class="selector"&gt;
-                        &lt;option&gt;Moho&lt;/option&gt;
-                        &lt;optgroup label="Eve System"&gt;
-                            &lt;option&gt;Eve&lt;/option&gt;
-                            &lt;option&gt;Gilly&lt;/option&gt;
-                        &lt;/optgroup&gt;
-                        &lt;optgroup label="Kerbin System"&gt;
-                            &lt;option&gt;Kerbin&lt;/option&gt;
-                            &lt;option&gt;Mun&lt;/option&gt;
-                            &lt;option&gt;Minmus&lt;/option&gt;
-                        &lt;/optgroup&gt;
-                        &lt;optgroup label="Dune System"&gt;
-                            &lt;option&gt;Duna&lt;/option&gt;
-                            &lt;option&gt;Ike&lt;/option&gt;
-                        &lt;/optgroup&gt;
-                        &lt;option&gt;Dres&lt;/option&gt;
-                        &lt;optgroup label="Jool System"&gt;
-                            &lt;option&gt;Jool&lt;/option&gt;
-                            &lt;option&gt;Laythe&lt;/option&gt;
-                            &lt;option&gt;Vall&lt;/option&gt;
-                            &lt;option&gt;Tylo&lt;/option&gt;
-                            &lt;option&gt;Bop&lt;/option&gt;
-                            &lt;option&gt;Pol&lt;/option&gt;
-                        &lt;/optgroup&gt;
-                        &lt;option&gt;Eeloo&lt;/option&gt;
-                    &lt;/select&gt;
-                &lt;/div&gt;
-            &lt;/div&gt;
-            &lt;div class="form-group1"&gt;
-                &lt;label class="label"&gt;&lt;input class="radio" id="useAtmoInput" type="checkbox"&gt;Use atmo &gt;&lt;/label&gt;
-                &lt;label class="label" for="altitudeInput"&gt;Altitude:&lt;/label&gt;
-                &lt;div class="input-group"&gt;
-                    &lt;input class="textInput" id="altitudeInput" value="0" size=10 type="text" name="payload"&gt;
-                    &lt;label class="textInputUnit" for="altitudeInput"&gt;km&lt;/label&gt;
-                &lt;/div&gt;
-            &lt;/div&gt;
-            &lt;div class="form-group"&gt;
-                &lt;label class="label" for="payloadInput"&gt;Payload mass:&lt;/label&gt;
-                &lt;div class="input-group"&gt;
-                    &lt;input class="textInput" id="payloadInput" value="1" size=10 type="text" name="payload"&gt;
-                    &lt;label class="textInputUnit" for="payloadInput"&gt;t&lt;/label&gt;
-                &lt;/div&gt;
-            &lt;/div&gt;
-            &lt;div class="form-group"&gt;
-                &lt;label class="label" for="dvInput"&gt;Desired dV:&lt;/label&gt;
-                &lt;div class="input-group"&gt;
-                    &lt;input class="textInput" id="dvInput" value="1500" size=10 type="text" name="dV"&gt;
-                    &lt;label class="textInputUnit" for="dvInput"&gt;m/s&lt;/label&gt;
-                &lt;/div&gt;
-            &lt;/div&gt;
-            &lt;div class="form-group"&gt;
-                &lt;label class="label" for="minTWRInput"&gt;Minimal TWR:&lt;/label&gt;
-                &lt;div class="input-group"&gt;
-                    &lt;input class="textInput" id="minTWRInput" value="1.0" size=10 type="text" name="TWR"&gt;
-                    &lt;label class="textInputUnit" for="minTWRInput"&gt;n/a&lt;/label&gt;
-                &lt;/div&gt;
-            &lt;/div&gt;
-            &lt;div class="form-group"&gt;
-                &lt;label class="label" for="tankKindSelect"&gt;Type of tanks:&lt;/label&gt;
-                &lt;div class="input-group"&gt;
-                    &lt;select id="tankKindSelect" class="selector"&gt;
-                        &lt;option&gt;Regular tanks&lt;/option&gt;
-                        &lt;option&gt;Spaceplane's tanks&lt;/option&gt;
-                    &lt;/select&gt;
-                &lt;/div&gt;
-            &lt;/div&gt;
-            &lt;div class="button-group"&gt;
-                &lt;button class="find-button" name="findButton" type="button" onclick="Calc()"&gt;Find optimal&lt;/button&gt;
-            &lt;/div&gt;
-        &lt;/div&gt;
-        &lt;div class="results"&gt;
-            &lt;h4&gt;Calculated optimal engine&lt;/h4&gt;
-            &lt;table name="calcTable" id="optimalTable"&gt;
-            &lt;tr class="res-row"&gt;
-                &lt;td class="res-col1"&gt;Engine name:&lt;/td&gt;&lt;td class="res-col2"&gt;-&lt;/td&gt;&lt;td class="res-col2"&gt;&lt;/td&gt;
-            &lt;/tr&gt;
-            &lt;tr class="res-row"&gt;
-                &lt;td class="res-col1"&gt;Number of engines:&lt;/td&gt;&lt;td class="res-col2" colspan="2"&gt;-&lt;/td&gt;
-            &lt;/tr&gt;
-            &lt;tr class="res-row"&gt;
-                &lt;td class="res-col1"&gt;Calculated TWR:&lt;/td&gt;&lt;td class="res-col2" colspan="2"&gt;-&lt;/td&gt;
-            &lt;/tr&gt;
-            &lt;tr class="res-row"&gt;
-                &lt;td class="res-col1"&gt;Total mass:&lt;/td&gt;&lt;td class="res-col2" colspan="2"&gt;-&lt;/td&gt;
-            &lt;/tr&gt;
-            &lt;/table&gt;
-        &lt;/div&gt;
-    &lt;/section&gt;
-&lt;/form&gt;
-&lt;section class="results-table" id="resultTable"&gt;
-    &lt;h4&gt;List of all acceptable engines&lt;/h4&gt;
-    &lt;table class="fullTable" id="EnginesTable"&gt;
-    &lt;tr class="res-header"&gt;
-        &lt;/td&gt;&lt;th class="res-hd4" colspan="2"&gt;Engine name&lt;/td&gt;&lt;td class="res-hd5"&gt;Total mass&lt;/td&gt;&lt;td class="res-hd5"&gt;Number of engines&lt;/td&gt;
-        &lt;td class="res-hd5"&gt;TWR&lt;/td&gt;&lt;td class="res-hd5"&gt;Isp&lt;/td&gt;&lt;td class="res-hd5"&gt;Theoretical maximum dV&lt;/td&gt;
-    &lt;/tr&gt;
-    &lt;/table&gt;
-&lt;/section&gt;
-</code></pre>
-
-<p>
-</p>
-
-      <footer class="site-footer">
-        <span class="site-footer-owner"><a href="https://github.com/Mesklin/KSP-OPTIMAL">Ksp-optimal</a> is maintained by <a href="https://github.com/Mesklin">Mesklin</a>.</span>
-
-        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
-      </footer>
-
-    </section>
-
-  
-  </body>
+</body>
 </html>
