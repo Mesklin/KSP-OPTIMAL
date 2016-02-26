@@ -42,6 +42,7 @@ function InitBodiesData() {
     Bodies.Duna.atmoCurve = atmoDuna;
     Bodies.Jool.atmoCurve = atmoJool;
     Bodies.Laythe.atmoCurve = atmoLaythe;
+    alert("After Inin");
 }
 
 function atmoPressure( Body, Altitude ) {
